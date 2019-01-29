@@ -2915,7 +2915,7 @@ input, select, textarea {
 			-webkit-transition: all 0.35s ease-in-out;
 			-ms-transition: all 0.35s ease-in-out;
 			transition: all 0.35s ease-in-out;
-			background-color: #ffffffs;
+			background-color: #ffffff;
 			box-shadow: 0 0 2em 0 rgba(0, 0, 0, 0.1);
 			margin: 0 auto;
 			opacity: 0;
@@ -3133,7 +3133,6 @@ input, select, textarea {
 			.spotlights > article .content {
 				padding: 4em 5em 2em 5em ;
 				text-align: center;
-					color: #ffffff;
 			}
 
 			.spotlights > article .image {
