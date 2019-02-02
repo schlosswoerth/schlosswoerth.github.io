@@ -1,276 +1,82 @@
 /*
-	Altitude by Pixelarity
+	Telemetry by Pixelarity
 	pixelarity.com | hello@pixelarity.com
 	License: pixelarity.com/license
 */
 
-var settings = {
-
-	slider: {
-
-		// Transition speed (in ms)
-		// For timing purposes only. It *must* match the transition speed of ".slider > article".
-			speed: 1500,
-
-		// Transition delay (in ms)
-			delay: 4000
-
-	},
-
-	carousel: {
-
-		// Transition speed (in ms)
-		// For timing purposes only. It *must* match the transition speed of ".carousel > article".
-			speed: 350
-
-	}
-
-};
-
 (function($) {
 
 	var	$window = $(window),
+		$header = $('#header'),
+		$banner = $('#banner'),
 		$body = $('body');
 
 	/**
-	 * Custom slider for Altitude.
+	 * Applies parallax scrolling to an element's background image.
 	 * @return {jQuery} jQuery object.
 	 */
-	$.fn._slider = function(options) {
+	$.fn._parallax = (browser.name == 'ie' | browser.name == 'edge' || browser.mobile) ? function() { return $(this) } : function(intensity) {
 
 		var	$window = $(window),
 			$this = $(this);
 
-		// Handle no/multiple elements.
-			if (this.length == 0)
-				return $this;
+		if (this.length == 0 || intensity === 0)
+			return $this;
 
-			if (this.length > 1) {
+		if (this.length > 1) {
 
-				for (var i=0; i < this.length; i++)
-					$(this[i])._slider(options);
+			for (var i=0; i < this.length; i++)
+				$(this[i])._parallax(intensity);
 
-				return $this;
+			return $this;
 
-			}
+		}
 
-		// Vars.
-			var	current = 0, pos = 0, lastPos = 0,
-				slides = [],
-				$slides = $this.children('article'),
-				intervalId,
-				isLocked = false,
-				i = 0;
+		if (!intensity)
+			intensity = 0.25;
 
-		// Functions.
-			$this._switchTo = function(x, stop) {
+		$this.each(function() {
 
-				// Handle lock.
-					if (isLocked || pos == x)
-						return;
+			var $t = $(this),
+				on, off;
 
-					isLocked = true;
+			on = function() {
 
-				// Stop?
-					if (stop)
-						window.clearInterval(intervalId);
+				$t.css('background-position', 'center 100%, center 100%, center 0px');
 
-				// Update positions.
-					lastPos = pos;
-					pos = x;
+				$window
+					.on('scroll._parallax', function() {
 
-				// Hide last slide.
-					slides[lastPos].removeClass('top');
+						var pos = parseInt($window.scrollTop()) - parseInt($t.position().top);
 
-				// Show new slide.
-					slides[pos].addClass('visible').addClass('top');
+						$t.css('background-position', 'center ' + (pos * (-1 * intensity)) + 'px');
 
-				// Finish hiding last slide after a short delay.
-					window.setTimeout(function() {
-
-						slides[lastPos].addClass('instant').removeClass('visible');
-
-						window.setTimeout(function() {
-
-							slides[lastPos].removeClass('instant');
-							isLocked = false;
-
-						}, 100);
-
-					}, options.speed);
+					});
 
 			};
 
-		// Slides.
-			$slides
-				.each(function() {
+			off = function() {
 
-					var $slide = $(this);
+				$t
+					.css('background-position', '');
 
-					// Add to slides.
-						slides.push($slide);
-
-					i++;
-
-				});
-
-		// Initial slide.
-			slides[pos]
-				.addClass('visible')
-				.addClass('top');
-
-		// Bail if we only have a single slide.
-			if (slides.length == 1)
-				return;
-
-		// Main loop.
-			intervalId = window.setInterval(function() {
-
-				// Increment.
-					current++;
-
-					if (current >= slides.length)
-						current = 0;
-
-				// Switch.
-					$this._switchTo(current);
-
-			}, options.delay);
-
-	};
-
-	/**
-	 * Custom carousel for Altitude.
-	 * @return {jQuery} jQuery object.
-	 */
-	$.fn._carousel = function(options) {
-
-		var	$window = $(window),
-			$this = $(this);
-
-		// Handle no/multiple elements.
-			if (this.length == 0)
-				return $this;
-
-			if (this.length > 1) {
-
-				for (var i=0; i < this.length; i++)
-					$(this[i])._slider(options);
-
-				return $this;
-
-			}
-
-		// Vars.
-			var	current = 0, pos = 0, lastPos = 0,
-				slides = [],
-				$slides = $this.children('article'),
-				intervalId,
-				isLocked = false,
-				i = 0;
-
-		// Functions.
-			$this._switchTo = function(x, stop) {
-
-				// Handle lock.
-					if (isLocked || pos == x)
-						return;
-
-					isLocked = true;
-
-				// Stop?
-					if (stop)
-						window.clearInterval(intervalId);
-
-				// Update positions.
-					lastPos = pos;
-					pos = x;
-
-				// Hide last slide.
-					slides[lastPos].removeClass('visible');
-
-				// Finish hiding last slide after a short delay.
-					window.setTimeout(function() {
-
-						// Hide last slide (display).
-							slides[lastPos].hide();
-
-						// Show new slide (display).
-							slides[pos].show();
-
-						// Show new new slide.
-							window.setTimeout(function() {
-								slides[pos].addClass('visible');
-							}, 25);
-
-						// Unlock after sort delay.
-							window.setTimeout(function() {
-								isLocked = false;
-							}, options.speed);
-
-					}, options.speed);
+				$window
+					.off('scroll._parallax');
 
 			};
 
-		// Slides.
-			$slides
-				.each(function() {
+			breakpoints.on('<=large', off);
+			breakpoints.on('>large', on);
 
-					var $slide = $(this);
+		});
 
-					// Add to slides.
-						slides.push($slide);
+		$window
+			.off('load._parallax resize._parallax')
+			.on('load._parallax resize._parallax', function() {
+				$window.trigger('scroll');
+			});
 
-					// Hide.
-						$slide.hide();
-
-					i++;
-
-				});
-
-		// Nav.
-			$this
-				.on('click', '.next', function(event) {
-
-					// Prevent default.
-						event.preventDefault();
-						event.stopPropagation();
-
-					// Increment.
-						current++;
-
-						if (current >= slides.length)
-							current = 0;
-
-					// Switch.
-						$this._switchTo(current);
-
-				})
-				.on('click', '.previous', function(event) {
-
-					// Prevent default.
-						event.preventDefault();
-						event.stopPropagation();
-
-					// Decrement.
-						current--;
-
-						if (current < 0)
-							current = slides.length - 1;
-
-					// Switch.
-						$this._switchTo(current);
-
-				});
-
-		// Initial slide.
-			slides[pos]
-				.show()
-				.addClass('visible');
-
-		// Bail if we only have a single slide.
-			if (slides.length == 1)
-				return;
+		return $(this);
 
 	};
 
@@ -280,8 +86,7 @@ var settings = {
 			large:    [ '981px',   '1280px' ],
 			medium:   [ '737px',   '980px'  ],
 			small:    [ '481px',   '736px'  ],
-			xsmall:   [ '361px',   '480px'  ],
-			xxsmall:  [ null,      '360px'  ]
+			xsmall:   [ null,      '480px'  ]
 		});
 
 	// Play initial animations on page load.
@@ -291,47 +96,80 @@ var settings = {
 			}, 100);
 		});
 
-	// Fix: Object-fit (pseudo) polyfill.
-		if (!browser.canUse('object-fit'))
-			$('img[data-position]').each(function() {
+	// Scrolly.
+		$('.scrolly').scrolly();
 
-				var	$this = $(this),
-					$parent = $this.parent();
+	// Header.
+		if ($banner.length > 0
+		&&	$header.hasClass('alt')) {
 
-				// Apply img's src to parent.
-					$parent
-						.css('background-image', 'url("' + $this.attr('src') + '")')
-						.css('background-size', 'cover')
-						.css('background-repeat', 'no-repeat')
-						.css('background-position', $this.data('position'));
+			$window.on('resize', function() { $window.trigger('scroll'); });
 
-				// Hide img.
-					$this
-						.css('opacity', '0');
-
+			$banner.scrollex({
+				bottom:		$header.outerHeight(),
+				terminate:	function() { $header.removeClass('alt'); },
+				enter:		function() { $header.addClass('alt'); },
+				leave:		function() { $header.removeClass('alt'); }
 			});
 
-	// Sliders.
-		$('.slider')
-			._slider(settings.slider);
+		}
 
-	// Carousels.
-		$('.carousel')
-			._carousel(settings.carousel);
+	// Banner.
+		if ($banner.length > 0)
+			$banner._parallax(0.25);
+
+	// Dropdowns.
+		$('#nav > ul').dropotron({
+			alignment: 'right',
+			hideDelay: 350,
+			baseZIndex: 100000
+		});
 
 	// Menu.
-		$('#menu')
-			.append('<a href="#menu" class="close"></a>')
-			.appendTo($body)
-			.panel({
-				delay: 500,
-				hideOnClick: true,
-				hideOnSwipe: true,
-				resetScroll: true,
-				resetForms: true,
-				target: $body,
-				visibleClass: 'is-menu-visible',
-				side: 'right'
+		$('<a href="#navPanel" class="navPanelToggle button">Menu</a>')
+			.appendTo($header);
+
+		$(	'<div id="navPanel">' +
+				'<nav>' +
+					$('#nav') .navList() +
+				'</nav>' +
+				'<a href="#navPanel" class="close"></a>' +
+			'</div>')
+				.appendTo($body)
+				.panel({
+					delay: 500,
+					hideOnClick: true,
+					hideOnSwipe: true,
+					resetScroll: true,
+					resetForms: true,
+					side: 'right'
+				});
+
+	// Tabs.
+		$('.tabs').selectorr({
+			titleSelector: 'h3',
+			delay: 250
+		});
+
+	// Quotes.
+		$('.quotes > article')
+			.each(function() {
+
+				var	$this = $(this),
+					$image = $this.find('.image'),
+					$img = $image.find('img'),
+					x;
+
+				// Assign image.
+					$this.css('background-image', 'url(' + $img.attr('src') + ')');
+
+				// Set background position.
+					if (x = $img.data('position'))
+						$this.css('background-position', x);
+
+				// Hide image.
+					$image.hide();
+
 			});
 
 })(jQuery);

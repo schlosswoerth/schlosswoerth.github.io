@@ -1,5 +1,5 @@
 ///
-/// Altitude by Pixelarity
+/// Telemetry by Pixelarity
 /// pixelarity.com | hello@pixelarity.com
 /// License: pixelarity.com/license
 ///
@@ -8,134 +8,235 @@
 
 	#header {
 		@include vendor('display', 'flex');
-		@include vendor('flex-direction', 'row');
+		@include vendor('align-items', 'center');
+		@include vendor('transition-duration', '#{_duration(transition)}');
+		@include vendor('transition-property', 'background-color padding');
+		@include vendor('transition-timing-function', 'ease-in-out');
+		@include color-button(accent1);
+		background: saturate(lighten(_palette(accent1, bg), 2), 5);
 		color: _palette(accent1, fg-bold);
-		cursor: default;
-		line-height: 1.5;
-		margin: 0 0 3em 0;
-		position: relative;
+		left: 0;
+		padding: 1em 1.5em;
+		position: fixed;
+		top: 0;
+		width: 100%;
+		z-index: _misc(z-index-base) + 1;
 
 		a {
-			border-bottom: 0;
 			color: inherit;
+			text-decoration: none;
+
+			&:hover {
+				color: _palette(accent1, fg-bold);
+			}
 		}
 
 		> .logo {
-			@include vendor('flex-grow', '0');
+			@include vendor('flex-grow', '1');
 			@include vendor('flex-shrink', '1');
-			display: inline-block;
-			font-size: 1.25em;
-			font-weight: _font(weight-bold);
-			letter-spacing: _font(letter-spacing-heading);
-			text-transform: uppercase;
-			vertical-align: middle;
+			cursor: default;
 
-			span {
-				border-left: solid 1px _palette(accent1, border);
-				color: _palette(accent1, fg-light);
+			> * {
 				display: inline-block;
-				font-size: 0.8em;
-				margin-left: 0.325em;
-				padding-left: 0.825em;
-				position: relative;
-				top: -0.075em;
+				vertical-align: middle;
+			}
+
+			> a {
+				font-size: 1.75em;
+			}
+
+			> span {
+				border-left: solid _size(border-width) _palette(accent1, fg);
+				margin-left: 1.5em;
+				padding-left: 1.5em;
 			}
 		}
 
 		> nav {
-			@include vendor('flex-grow', '1');
+			@include vendor('flex-grow', '0');
 			@include vendor('flex-shrink', '0');
-			text-align: right;
-			white-space: nowrap;
+			margin-right: 0.5em;
 
-			ul {
-				list-style: none;
-				margin: -0.5em -1em 0 0;
-				padding-left: 0;
+			> ul {
+				@include vendor('align-items', 'center');
+				@include vendor('display', 'flex');
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
 
-				li {
-					display: inline-block;
+				> li {
+					margin-left: 2.25em;
+					padding: 0;
+
+					> ul {
+						display: none;
+					}
+				}
+			}
+
+			a {
+				&.icon {
+					&:before {
+						margin-right: 0.625em;
+					}
+				}
+
+				&[href="#navPanel"] {
+					@include icon;
+					-webkit-tap-highlight-color: rgba(0,0,0,0);
+					display: none;
 					font-weight: _font(weight-bold);
-					letter-spacing: _font(letter-spacing-heading);
 					margin-left: 0.5em;
-					padding-left: 0;
-					text-transform: uppercase;
+					padding: 0.5em 1.25em;
 
-					a {
-						display: inline-block;
-						line-height: inherit;
-						padding: 0.5em 1em;
+					&:before {
+						content: '\f0c9';
+					}
+				}
+			}
 
-						&[href="#menu"] {
-							@include icon;
+			@at-root {
+				.dropotron {
+					background-color: _palette(bg);
+					border-radius: 0.5em;
+					box-shadow: 0 0.075em 0.125em 0.1em rgba(0,0,0,0.075);
+					list-style-type: none;
+					margin: -0.5em 0 0 1px;
+					min-width: 10em;
+					padding: 0.5em 0;
 
-							&:before {
-								content: '\f0c9';
-								float: right;
-								margin-left: 0.75em;
-							}
+					&.level-0 {
+						margin-top: 1.125em;
+						margin-left: 0;
+
+						&:before {
+							@include vendor('transform', 'rotate(45deg)');
+							background-color: _palette(bg);
+							box-shadow: -2px -2px 3px -1px rgba(0,0,0,0.1);
+							content: '';
+							height: 0.75em;
+							position: absolute;
+							right: 2em;
+							top: -0.375em;
+							width: 0.75em;
+						}
+					}
+
+					li {
+						border-top: solid _size(border-width) _palette(border);
+						padding: 0;
+						position: relative;
+
+						&:first-child {
+							border-top: none;
 						}
 
-						&:hover {
-							background-color: _palette(accent1, border-bg);
-							border-radius: _size(border-radius);
+						&.active > a {
+							background-color: _palette(accent1, bg);
+							color: _palette(accent1, fg-bold);
+						}
+					}
+
+					a {
+						color: _palette(fg);
+						padding: 0.5em 1em;
+						text-decoration: none !important;
+
+						&:active, &:hover, &:focus {
+							background-color: _palette(accent1, bg);
+							color: _palette(accent1, fg-bold);
 						}
 					}
 				}
+			}
+		}
+
+		> .navPanelToggle {
+			@include vendor('transition', (
+				'background-color #{_duration(transition)} ease-in-out',
+				'color #{_duration(transition)} ease-in-out',
+				'top #{_duration(transition)} ease-in-out',
+				'right #{_duration(transition)} ease-in-out'
+			));
+			@include icon;
+			display: none;
+			height: 3em;
+			line-height: 3em;
+			margin-right: -0.5em;
+			padding: 0 1.5em;
+
+			&:before {
+				content: '\f0c9';
+				margin: 0 0.5em 0 0;
+			}
+		}
+
+		&.alt {
+			background-color: transparent;
+			padding: 2em 2.5em;
+
+			> nav {
+				margin-right: 0;
+			}
+
+			> .navPanelToggle {
+				margin-right: -1em;
 			}
 		}
 
 		@include breakpoint('<=large') {
-			margin: 0 0 2em 0;
-
 			> .logo {
-				span {
-					top: -0.05em;
+				> a {
+					font-size: 1.25em;
 				}
+
+				> span {
+					margin-left: 1.25em;
+					padding-left: 1.25em;
+				}
+			}
+		}
+
+		@include breakpoint('<=medium') {
+			padding: 0.75em 1.25em;
+
+			> nav {
+				display: none;
+			}
+
+			> .navPanelToggle {
+				display: block;
+			}
+
+			&.alt {
+				padding: 2em 2em;
 			}
 		}
 
 		@include breakpoint('<=small') {
-			> .logo {
-				font-size: 1em;
+			padding: 0.5em 0.825em;
 
-				span {
+			> .logo {
+				> a {
 					font-size: 1em;
-					top: 0;
 				}
-			}
-		}
 
-		@include breakpoint('<=xsmall') {
-			height: 44px;
-			line-height: 44px;
-			margin: 0;
-			padding: 0 1.25em;
-
-			> .logo {
-				font-size: 0.8em;
-
-				span {
+				> span {
 					display: none;
 				}
 			}
 
-			> nav {
-				font-size: 0.8em;
+			> .navPanelToggle {
+				height: 2.5em;
+				line-height: 2.5em;
+				padding: 0 1em;
 
-				ul {
-					margin: 0;
-
-					li {
-						a {
-							padding: 0;
-
-							&:hover {
-								background-color: transparent;
-							}
-						}
-					}
+				&:before {
 				}
+			}
+
+			&.alt {
+				padding: 1.5em 1.5em;
 			}
 		}
 	}

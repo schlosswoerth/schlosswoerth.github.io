@@ -1,5 +1,5 @@
 ///
-/// Altitude by Pixelarity
+/// Telemetry by Pixelarity
 /// pixelarity.com | hello@pixelarity.com
 /// License: pixelarity.com/license
 ///
@@ -12,21 +12,24 @@
 	button,
 	.button {
 		@include vendor('appearance', 'none');
-		@include vendor('transition', 'background-color #{_duration(transition)} ease-in-out, color #{_duration(transition)} ease-in-out');
-		border-radius: _size(element-height) / 0.7;
+		@include vendor('transition', (
+			'background-color #{_duration(transition)} ease-in-out',
+			'color #{_duration(transition)} ease-in-out'
+		));
+		border-radius: _size(border-radius);
 		border: 0;
-		cursor: pointer !important;
+		cursor: pointer;
 		display: inline-block;
-		font-weight: _font(weight-extrabold);
-		height: _size(element-height) / 0.7;
-		line-height: _size(element-height) / 0.7;
-		padding: 0 3em;
+		font-size: 0.9em;
+		font-weight: _font(weight-bold);
+		height: 3.5em;
+		letter-spacing: 0.05em;
+		line-height: 3.5em;
+		padding: 0 2em;
 		text-align: center;
 		text-decoration: none;
-		white-space: nowrap;
-		letter-spacing: _font(letter-spacing-heading);
 		text-transform: uppercase;
-		font-size: 0.7em;
+		white-space: nowrap;
 
 		&.icon {
 			&:before {
@@ -39,11 +42,15 @@
 		}
 
 		&.small {
-			font-size: 0.6em;
+			font-size: 0.7em;
 		}
 
 		&.large {
-			font-size: 1em;
+			font-size: 1.1em;
+		}
+
+		&.wide {
+			min-width: 15em;
 		}
 
 		&.disabled,
@@ -54,13 +61,15 @@
 	}
 
 	@mixin color-button($p: null) {
+		$highlight: _palette($p, highlight);
+
 		input[type="submit"],
 		input[type="reset"],
 		input[type="button"],
 		button,
 		.button {
 			background-color: transparent;
-			box-shadow: inset 0 0 0 1px _palette($p, border);
+			box-shadow: inset 0 0 0 _size(border-width) _palette($p, fg);
 			color: _palette($p, fg-bold) !important;
 
 			&:hover {
@@ -68,35 +77,44 @@
 			}
 
 			&:active {
-				background-color: _palette($p, border-bg-alt);
+				background-color: _palette($p, border2-bg);
 			}
 
-			@if ($p == null) {
-				&.primary {
-					background-color: _palette(accent1, bg);
-					color: _palette(accent1, fg-bold) !important;
-
-					&:hover {
-						background-color: lighten(_palette(accent1, bg), 5);
-					}
-
-					&:active {
-						background-color: lighten(_palette(accent1, bg), 10);
-					}
+			&.icon {
+				&:before {
+					color: _palette($p, fg-light);
 				}
 			}
-			@else {
-				&.primary {
-					box-shadow: 0 0 3em 0 _palette(shadow);
-					background-color: saturate(lighten(_palette($p, bg), 5), 3);
-					color: _palette($p, fg-bold) !important;
+
+			&.primary {
+				box-shadow: none;
+
+				@if $p == $highlight {
+					background-color: _palette($p, fg-bold);
+					color: _palette($p, bg) !important;
+
+					&.icon {
+						&:before {
+							color: _palette($p, bg) !important;
+						}
+					}
+				}
+				@else {
+					background-color: _palette($highlight, bg);
+					color: _palette($highlight, fg-bold) !important;
+
+					&.icon {
+						&:before {
+							color: _palette($highlight, fg-bold) !important;
+						}
+					}
 
 					&:hover {
-						background-color: saturate(lighten(_palette($p, bg), 10), 3);
+						background-color: lighten(_palette($highlight, bg), 5);
 					}
 
 					&:active {
-						background-color: saturate(lighten(_palette($p, bg), 15), 5);
+						background-color: darken(_palette($highlight, bg), 5);
 					}
 				}
 			}
